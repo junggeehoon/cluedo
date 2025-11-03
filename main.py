@@ -5,14 +5,20 @@ def main():
     print("클루(Clue) 추리 보조 프로그램을 시작합니다.")
 
     num_players = int(input("총 플레이어 인원 수를 입력하세요: "))
-    player_names = [input(f"플레이어 {i + 1}의 이름을 입력하세요 (시계방향 순서): ") for i in range(num_players)]
+
+    player_names = []
+    for i in range(num_players):
+        name = input(f"플레이어 {i + 1}의 이름을 입력하세요 (시계방향 순서): ")
+        player_names.append(name)
+
+    # player_names = [input(f"플레이어 {i + 1}의 이름을 입력하세요 (시계방향 순서): ") for i in range(num_players)]
     my_name = input("당신의 이름을 입력하세요: ")
 
     print("\n가지고 있는 카드를 입력하세요. 쉼표(,)로 구분합니다.")
     print(f"카드 목록: {', '.join(ALL_CARDS)}")
     my_cards = [card.strip() for card in input("내 카드: ").split(',')]
 
-    game = ClueHelper(num_players, player_names, my_name, my_cards)
+    game = ClueHelper(player_names, my_name, my_cards)
     print("\n초기 설정이 완료되었습니다. 게임을 시작하세요.")
     game.display_status()
 
@@ -21,28 +27,33 @@ def main():
         choice = input("선택: ")
 
         if choice == '1':
+            pass
             suggester = input("  - 추리한 사람: ")
             suggestion_cards = [c.strip() for c in input("  - 추리 카드 3장: ").split(',')]
             shower = input("  - 카드를 보여준 사람 (없으면 Enter): ")
 
             if not shower:
-                game.record_suggestion(suggester, suggestion_cards, None)
+                # 만약에 나도 카드를 안 들고 있고 나머지 플레이어들도 안 가지고 있으면 그 카드는 정답.
+                pass
+            #     game.record_suggestion(suggester, suggestion_cards, None)
             else:
-                if shower == my_name:
-                    print("  - 당신이 보여준 경우는 생략합니다.")
-                    continue
-                shown_to_me = input(f"  - {shower}가 당신에게 카드를 보여줬나요? (y/n): ").lower()
-                if shown_to_me == 'y':
-                    shown_card = input("  - 보여준 카드는 무엇인가요?: ")
-                    game.record_suggestion(suggester, suggestion_cards, shower, shown_card)
-                else:
-                    game.record_suggestion(suggester, suggestion_cards, shower)
-            game.display_status()
+                pass
+            #     if shower == my_name:
+            #         print("  - 당신이 보여준 경우는 생략합니다.")
+            #         continue
+            #     shown_to_me = input(f"  - {shower}가 당신에게 카드를 보여줬나요? (y/n): ").lower()
+            #     if shown_to_me == 'y':
+            #         shown_card = input("  - 보여준 카드는 무엇인가요?: ")
+            #         game.record_suggestion(suggester, suggestion_cards, shower, shown_card)
+            #     else:
+            #         game.record_suggestion(suggester, suggestion_cards, shower)
+            # game.display_status()
 
         elif choice == '2':
             game.display_status()
         elif choice == '3':
-            game.recommend_move()
+            pass
+            # game.recommend_move()
         elif choice == '4':
             print("프로그램을 종료합니다.")
             break
