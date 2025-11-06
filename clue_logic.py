@@ -2,10 +2,11 @@ import numpy as np
 from itertools import product
 from clue_data import ALL_CARDS, SUSPECTS, WEAPONS, ROOMS
 
+
 class ClueHelper:
-    def __init__(self, player_names, my_name, my_cards):
-        self.players = player_names
-        self.num_players = len(player_names)
+    def __init__(self, players, my_name, my_cards):
+        self.players = players
+        self.num_players = len(players)
         self.my_name = my_name
         self.my_cards = set(my_cards)
         self.history = []  # 추리 기록 저장
@@ -16,10 +17,16 @@ class ClueHelper:
         for card in self.my_cards:
             self.knowledge[card]['owner'] = self.my_name
 
+        other_cards = set(ALL_CARDS) - self.my_cards
+        for card in other_cards:
+            self.knowledge[card]['not_owned_by'].add(self.my_name)
+
         # 다른 모든 플레이어는 내 카드를 가지고 있지 않음
         other_players = set(self.players) - {self.my_name}
         for card in self.my_cards:
             self.knowledge[card]['not_owned_by'].update(other_players)
+
+
 
         # --- [1] 초기 확률 설정 (카테고리별 정규화)
         self.card_probs = {}
@@ -46,6 +53,11 @@ class ClueHelper:
     # 📊 상태 표시
     # ===============================
     def display_status(self):
+        # print(self.knowledge)
+
+        for card in self.knowledge:
+            print(f'{card}: owner { {self.knowledge[card]["owner"]} }, not_owned_by {self.knowledge[card]["not_owned_by"]}')
+
         print("\n===============================")
         print("현재 사건파일 후보 확률 (카테고리별 100%)")
         print("-------------------------------")
@@ -53,12 +65,37 @@ class ClueHelper:
         def show(title, cards):
             print(f"\n[{title}]")
             for c in cards:
-                print(f"{c:<15} : {self.card_probs[c]*100:>5.2f}%")
+                print(f"{c:<15} : {self.card_probs[c] * 100:>5.2f}%")
 
         show("용의자", SUSPECTS)
         show("도구", WEAPONS)
         show("장소", ROOMS)
         print("===============================")
+
+    def process_my_suggestion(self, suggester, suggestion_cards, shower):
+        if shower:
+            shown_card = input("  - 보여준 카드는 무엇인가요?: ")
+
+            # 보여준 카드에 owner: shower 처리
+            self.knowledge[shown_card]['owner'] = shower
+
+            # 나(my_name)와 보여준 플레이어(shower) 사이에 있는 플레이어들은 추리한 카드 3장 모두 들고 있지 않다.
+            suggester_idx = self.players.index(suggester)
+            shower_idx = self.players.index(shower)
+
+            idx = (suggester_idx + 1) % self.num_players
+
+            while idx != shower_idx:
+                # 질문자 다음부터 답변자 전까지의 플레이어
+                player = self.players[idx]
+
+                for card in suggestion_cards:
+                    self.knowledge[card]['not_owned_by'].add(player)
+                idx = (idx + 1) % self.num_players
+
+        else:
+            pass
+    # 만약에 나도 카드를 안 들고 있고 나머지 플레이어들도 안 가지고 있으면 그 카드는 정답.
 
     # # ===============================
     # # 📘 추리 기록
@@ -118,4 +155,3 @@ class ClueHelper:
     #     print(f"용의자 → {s}")
     #     print(f"도구   → {w}")
     #     print(f"장소   → {r}")
-

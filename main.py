@@ -1,15 +1,16 @@
 from clue_logic import *
 from clue_data import ALL_CARDS
 
+
 def main():
     print("클루(Clue) 추리 보조 프로그램을 시작합니다.")
 
     num_players = int(input("총 플레이어 인원 수를 입력하세요: "))
 
-    player_names = []
+    players = []
     for i in range(num_players):
         name = input(f"플레이어 {i + 1}의 이름을 입력하세요 (시계방향 순서): ")
-        player_names.append(name)
+        players.append(name)
 
     # player_names = [input(f"플레이어 {i + 1}의 이름을 입력하세요 (시계방향 순서): ") for i in range(num_players)]
     my_name = input("당신의 이름을 입력하세요: ")
@@ -18,7 +19,7 @@ def main():
     print(f"카드 목록: {', '.join(ALL_CARDS)}")
     my_cards = [card.strip() for card in input("내 카드: ").split(',')]
 
-    game = ClueHelper(player_names, my_name, my_cards)
+    game = ClueHelper(players, my_name, my_cards)
     print("\n초기 설정이 완료되었습니다. 게임을 시작하세요.")
     game.display_status()
 
@@ -32,12 +33,22 @@ def main():
             suggestion_cards = [c.strip() for c in input("  - 추리 카드 3장: ").split(',')]
             shower = input("  - 카드를 보여준 사람 (없으면 Enter): ")
 
-            if not shower:
-                # 만약에 나도 카드를 안 들고 있고 나머지 플레이어들도 안 가지고 있으면 그 카드는 정답.
-                pass
-            #     game.record_suggestion(suggester, suggestion_cards, None)
+            if suggester == my_name:
+                game.process_my_suggestion(suggester, suggestion_cards, shower)
+                # 확률 정규화 로직1
             else:
                 pass
+                # Process suggestion
+                # 확률 정규화 로직2
+
+            # if not shower:
+            #     # 만약에 나도 카드를 안 들고 있고 나머지 플레이어들도 안 가지고 있으면 그 카드는 정답.
+            #     pass
+            # #     game.record_suggestion(suggester, suggestion_cards, None)
+            # else:
+            #     # 1. 추리한 플레이어와(suggester) 보여준 플레이어(shower) 사이에 있는 플레이어들은 추리한 카드 3장 모두 들고 있지 않다.
+            #     # 2.
+            #     pass
             #     if shower == my_name:
             #         print("  - 당신이 보여준 경우는 생략합니다.")
             #         continue
@@ -59,6 +70,7 @@ def main():
             break
         else:
             print("잘못된 입력입니다. 다시 선택해주세요.")
+
 
 if __name__ == "__main__":
     main()
