@@ -45,9 +45,9 @@ def main():
                 weight = previous_cases / next_cases
 
                 # Normalize 진행
-                suspects_left = [s for s in SUSPECTS if s not in game.knowledge[s]['owner']]
-                weapons_left = [w for w in WEAPONS if w not in game.knowledge[w]['owner']]
-                rooms_left = [r for r in ROOMS if r not in game.knowledge[r]['owner']]
+                suspects_left = [s for s in SUSPECTS if not game.knowledge[s]['owner']]
+                weapons_left = [w for w in WEAPONS if not game.knowledge[w]['owner']]
+                rooms_left = [r for r in ROOMS if not game.knowledge[r]['owner']]
 
                 # left 카드 중 Suggestion 카드에 가중치: weight(45 line)
                 # left 카드 중 Suggestion 아닌 카드에 가중치 1
