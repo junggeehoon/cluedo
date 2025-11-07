@@ -34,8 +34,28 @@ def main():
             shower = input("  - 카드를 보여준 사람 (없으면 Enter): ")
 
             if suggester == my_name:
+                # 추리한 카드 3장에 대해 각각 정답일 경우의 수 계산 (knowledge 기반)
+                previous_cases = game.calculate_cases(suggestion_cards)
+
                 game.process_my_suggestion(suggester, suggestion_cards, shower)
-                # 확률 정규화 로직1
+
+                # 확률 정규화 로직1 => 추리한 카드 3장에 대해 각각 (knowledge 기반)
+                # 전체 후보리스트: players + envelope
+                next_cases = game.calculate_cases(suggestion_cards)
+                weight = previous_cases / next_cases
+
+                # Normalize 진행
+                suspects_left = [s for s in SUSPECTS if s not in game.knowledge[s]['owner']]
+                weapons_left = [w for w in WEAPONS if w not in game.knowledge[w]['owner']]
+                rooms_left = [r for r in ROOMS if r not in game.knowledge[r]['owner']]
+
+                # left 카드 중 Suggestion 카드에 가중치: weight(45 line)
+                # left 카드 중 Suggestion 아닌 카드에 가중치 1
+                # Suggestion 중 shown 카드는 제외
+                # 각 카드의 가중치 / 각 카드 가중치의 합 => updated probability
+
+                # 제외할 플레이어들: 해당 카드
+
             else:
                 pass
                 # Process suggestion

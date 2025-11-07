@@ -97,6 +97,9 @@ class ClueHelper:
             pass
     # 만약에 나도 카드를 안 들고 있고 나머지 플레이어들도 안 가지고 있으면 그 카드는 정답.
 
+    def calculate_cases(self, suggestion_cards):
+        return len(self.players) - len(self.knowledge[suggestion_cards[0]]['not_owned_by']) + 1
+
     # # ===============================
     # # 📘 추리 기록
     # # ===============================
