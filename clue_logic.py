@@ -3,6 +3,17 @@ from itertools import product
 from clue_data import ALL_CARDS, SUSPECTS, WEAPONS, ROOMS
 
 
+def sort_suggestions(cards):
+    def card_type(card):
+        if card in SUSPECTS:
+            return 0
+        if card in WEAPONS:
+            return 1
+        return 2  # ROOMS
+
+    return sorted(cards, key=card_type)
+
+
 class ClueHelper:
     def __init__(self, players, my_name, my_cards):
         self.players = players
@@ -54,7 +65,8 @@ class ClueHelper:
         # print(self.knowledge)
 
         for card in self.knowledge:
-            print(f'{card}: owner { {self.knowledge[card]["owner"]} }, not_owned_by {self.knowledge[card]["not_owned_by"]}')
+            print(
+                f'{card}: owner { {self.knowledge[card]["owner"]} }, not_owned_by {self.knowledge[card]["not_owned_by"]}')
 
         print("\n===============================")
         print("현재 사건파일 후보 확률 (카테고리별 100%)")
@@ -93,10 +105,16 @@ class ClueHelper:
 
         # else:
         #     pass
+
     # 만약에 나도 카드를 안 들고 있고 나머지 플레이어들도 안 가지고 있으면 그 카드는 정답.
 
     def calculate_cases(self, suggestion_cards):
-        return len(self.players) - len(self.knowledge[suggestion_cards[0]]['not_owned_by']) + 1
+        cases = []
+        sort_suggestions(suggestion_cards)
+        for card in suggestion_cards:
+            cases.append(len(self.players) - len(self.knowledge[card]['not_owned_by']) + 1)
+
+        return cases
 
     def update_probabilities(self, shown_card):
         pass

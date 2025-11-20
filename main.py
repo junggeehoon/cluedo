@@ -1,6 +1,6 @@
 from clue_logic import *
 from clue_data import ALL_CARDS
-
+import numpy as np
 
 def main():
     print("클루(Clue) 추리 보조 프로그램을 시작합니다.")
@@ -37,6 +37,7 @@ def main():
             pass
             suggester = input("  - 추리한 사람: ")
             suggestion_cards = [c.strip() for c in input("  - 추리 카드 3장: ").split(',')]
+            suggestion_cards_s = sort_suggestions(suggestion_cards)
             shower = input("  - 카드를 보여준 사람 (없으면 Enter): ")
 
             if suggester == my_name:
@@ -45,16 +46,16 @@ def main():
                     shown_card = input("  - 보여준 카드는 무엇인가요?: ")
 
                     # 추리한 카드 3장에 대해 각각 정답일 경우의 수 계산 (knowledge 기반)
-                    previous_cases = game.calculate_cases(suggestion_cards)
+                    previous_cases = game.calculate_cases(suggestion_cards_s)
 
-                    game.process_my_suggestion(suggester, suggestion_cards, shower, shown_card)
+                    game.process_my_suggestion(suggester, suggestion_cards_s, shower, shown_card)
 
                     # 확률 정규화 로직1 => 추리한 카드 3장에 대해 각각 (knowledge 기반)
                     # 전체 후보리스트: players + envelope
-                    next_cases = game.calculate_cases(suggestion_cards)
-                    weight = previous_cases / next_cases
+                    next_cases = game.calculate_cases(suggestion_cards_s)
+                    weight = np.array(previous_cases) / np.array(next_cases)
 
-                    weights = {card: 1.0 for card in suggestion_cards}
+                    weights = {card: 1.0 for card in suggestion_cards_s}
 
                     weights[shown_card] = 0
 
@@ -63,10 +64,17 @@ def main():
                     weapons_left = [w for w in WEAPONS if not game.knowledge[w]['owner']]
                     rooms_left = [r for r in ROOMS if not game.knowledge[r]['owner']]
 
-                    print(suspects_left)
+                    # print(suspects_left)
+                    print(weight)
 
                     # left 카드 중 suggestion_cards 에 가중치: weight(45 line)
-                    hello = [weight for s in suspects_left if s in suggestion_cards]
+
+                    # for card in suggestion_cards:
+                    #     weights[card] = weight
+                    # hello = [weight for s in suspects_left if s in suggestion_cards]
+
+                    # print(hello)
+                    # print(weights)
 
                     # left 카드 중 suggestion_cards 아닌 카드에 가중치 1
                     hello = [1 for s in suspects_left if s not in suggestion_cards]
