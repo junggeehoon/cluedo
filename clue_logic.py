@@ -26,8 +26,6 @@ class ClueHelper:
         for card in self.my_cards:
             self.knowledge[card]['not_owned_by'].update(other_players)
 
-
-
         # --- [1] 초기 확률 설정 (카테고리별 정규화)
         self.card_probs = {}
 
@@ -72,37 +70,41 @@ class ClueHelper:
         show("장소", ROOMS)
         print("===============================")
 
-    def process_my_suggestion(self, suggester, suggestion_cards, shower):
-        if shower:
-            shown_card = input("  - 보여준 카드는 무엇인가요?: ")
+    def process_my_suggestion(self, suggester, suggestion_cards, shower, shown_card=None):
+        # if shower:
+        #     shown_card = input("  - 보여준 카드는 무엇인가요?: ")
 
-            # 보여준 카드에 owner: shower 처리
-            self.knowledge[shown_card]['owner'] = shower
+        # 보여준 카드에 owner: shower 처리
+        self.knowledge[shown_card]['owner'] = shower
 
-            # 나(my_name)와 보여준 플레이어(shower) 사이에 있는 플레이어들은 추리한 카드 3장 모두 들고 있지 않다.
-            suggester_idx = self.players.index(suggester)
-            shower_idx = self.players.index(shower)
+        # 나(my_name)와 보여준 플레이어(shower) 사이에 있는 플레이어들은 추리한 카드 3장 모두 들고 있지 않다.
+        suggester_idx = self.players.index(suggester)
+        shower_idx = self.players.index(shower)
 
-            idx = (suggester_idx + 1) % self.num_players
+        idx = (suggester_idx + 1) % self.num_players
 
-            while idx != shower_idx:
-                # 질문자 다음부터 답변자 전까지의 플레이어
-                player = self.players[idx]
+        while idx != shower_idx:
+            # 질문자 다음부터 답변자 전까지의 플레이어
+            player = self.players[idx]
 
-                for card in suggestion_cards:
-                    self.knowledge[card]['not_owned_by'].add(player)
-                idx = (idx + 1) % self.num_players
+            for card in suggestion_cards:
+                self.knowledge[card]['not_owned_by'].add(player)
+            idx = (idx + 1) % self.num_players
 
-        else:
-            pass
+        # else:
+        #     pass
     # 만약에 나도 카드를 안 들고 있고 나머지 플레이어들도 안 가지고 있으면 그 카드는 정답.
 
     def calculate_cases(self, suggestion_cards):
         return len(self.players) - len(self.knowledge[suggestion_cards[0]]['not_owned_by']) + 1
 
+    def update_probabilities(self, shown_card):
+        pass
+
     # # ===============================
     # # 📘 추리 기록
     # # ===============================
+    #                             suggester, suggestion_cards, shower, shown_card
     # def record_suggestion(self, suggester, cards, shower=None, shown_card=None):
     #     self.history.append((suggester, cards, shower, shown_card))
     #     print(f"\n📘 추리 기록: {suggester} → {cards}, 보여준 사람: {shower}, 카드: {shown_card}")

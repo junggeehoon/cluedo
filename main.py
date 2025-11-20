@@ -5,21 +5,27 @@ from clue_data import ALL_CARDS
 def main():
     print("클루(Clue) 추리 보조 프로그램을 시작합니다.")
 
-    num_players = int(input("총 플레이어 인원 수를 입력하세요: "))
+    # num_players = int(input("총 플레이어 인원 수를 입력하세요: "))
 
-    players = []
-    for i in range(num_players):
-        name = input(f"플레이어 {i + 1}의 이름을 입력하세요 (시계방향 순서): ")
-        players.append(name)
+    # players = ['a', 'b', 'c']
+    # players = []
+    # for i in range(num_players):
+    #     name = input(f"플레이어 {i + 1}의 이름을 입력하세요 (시계방향 순서): ")
+    #     players.append(name)
 
     # player_names = [input(f"플레이어 {i + 1}의 이름을 입력하세요 (시계방향 순서): ") for i in range(num_players)]
-    my_name = input("당신의 이름을 입력하세요: ")
+    player_names = ['a', 'b', 'c']
+    # my_name = input("당신의 이름을 입력하세요: ")
 
-    print("\n가지고 있는 카드를 입력하세요. 쉼표(,)로 구분합니다.")
-    print(f"카드 목록: {', '.join(ALL_CARDS)}")
-    my_cards = [card.strip() for card in input("내 카드: ").split(',')]
+    my_name = 'a'
 
-    game = ClueHelper(players, my_name, my_cards)
+    # print("\n가지고 있는 카드를 입력하세요. 쉼표(,)로 구분합니다.")
+    # print(f"카드 목록: {', '.join(ALL_CARDS)}")
+    # my_cards = [card.strip() for card in input("내 카드: ").split(',')]
+
+    my_cards = ['1', '2', '7', '8', '13', '14']
+
+    game = ClueHelper(player_names, my_name, my_cards)
     print("\n초기 설정이 완료되었습니다. 게임을 시작하세요.")
     game.display_status()
 
@@ -34,27 +40,44 @@ def main():
             shower = input("  - 카드를 보여준 사람 (없으면 Enter): ")
 
             if suggester == my_name:
-                # 추리한 카드 3장에 대해 각각 정답일 경우의 수 계산 (knowledge 기반)
-                previous_cases = game.calculate_cases(suggestion_cards)
 
-                game.process_my_suggestion(suggester, suggestion_cards, shower)
+                if shower:
+                    shown_card = input("  - 보여준 카드는 무엇인가요?: ")
 
-                # 확률 정규화 로직1 => 추리한 카드 3장에 대해 각각 (knowledge 기반)
-                # 전체 후보리스트: players + envelope
-                next_cases = game.calculate_cases(suggestion_cards)
-                weight = previous_cases / next_cases
+                    # 추리한 카드 3장에 대해 각각 정답일 경우의 수 계산 (knowledge 기반)
+                    previous_cases = game.calculate_cases(suggestion_cards)
 
-                # Normalize 진행
-                suspects_left = [s for s in SUSPECTS if not game.knowledge[s]['owner']]
-                weapons_left = [w for w in WEAPONS if not game.knowledge[w]['owner']]
-                rooms_left = [r for r in ROOMS if not game.knowledge[r]['owner']]
+                    game.process_my_suggestion(suggester, suggestion_cards, shower, shown_card)
 
-                # left 카드 중 Suggestion 카드에 가중치: weight(45 line)
-                # left 카드 중 Suggestion 아닌 카드에 가중치 1
-                # Suggestion 중 shown 카드는 제외
-                # 각 카드의 가중치 / 각 카드 가중치의 합 => updated probability
+                    # 확률 정규화 로직1 => 추리한 카드 3장에 대해 각각 (knowledge 기반)
+                    # 전체 후보리스트: players + envelope
+                    next_cases = game.calculate_cases(suggestion_cards)
+                    weight = previous_cases / next_cases
 
-                # 제외할 플레이어들: 해당 카드
+                    weights = {card: 1.0 for card in suggestion_cards}
+
+                    weights[shown_card] = 0
+
+                    # Normalize 진행
+                    suspects_left = [s for s in SUSPECTS if not game.knowledge[s]['owner']]
+                    weapons_left = [w for w in WEAPONS if not game.knowledge[w]['owner']]
+                    rooms_left = [r for r in ROOMS if not game.knowledge[r]['owner']]
+
+                    print(suspects_left)
+
+                    # left 카드 중 suggestion_cards 에 가중치: weight(45 line)
+                    hello = [weight for s in suspects_left if s in suggestion_cards]
+
+                    # left 카드 중 suggestion_cards 아닌 카드에 가중치 1
+                    hello = [1 for s in suspects_left if s not in suggestion_cards]
+
+                    # Suggestion 중 shown 카드는 제외
+                    # 각 카드의 가중치 / 각 카드 가중치의 합 => updated probability
+
+                    # 제외할 플레이어들: 해당 카드
+
+                else:
+                    pass
 
             else:
                 pass
