@@ -2,6 +2,7 @@ from clue_logic import *
 from clue_data import ALL_CARDS
 import numpy as np
 
+
 def main():
     print("클루(Clue) 추리 보조 프로그램을 시작합니다.")
 
@@ -53,34 +54,53 @@ def main():
                     # 확률 정규화 로직1 => 추리한 카드 3장에 대해 각각 (knowledge 기반)
                     # 전체 후보리스트: players + envelope
                     next_cases = game.calculate_cases(suggestion_cards_s)
-                    weight = np.array(previous_cases) / np.array(next_cases)
+                    weight = list(np.array(previous_cases) / np.array(next_cases))  # [3, 5, 9] [1.5 1.5 1.5]
 
-                    weights = {card: 1.0 for card in suggestion_cards_s}
-
-                    weights[shown_card] = 0
-
-                    # Normalize 진행
-                    suspects_left = [s for s in SUSPECTS if not game.knowledge[s]['owner']]
-                    weapons_left = [w for w in WEAPONS if not game.knowledge[w]['owner']]
-                    rooms_left = [r for r in ROOMS if not game.knowledge[r]['owner']]
-
-                    # print(suspects_left)
-                    print(weight)
+                    if shown_card in SUSPECTS:
+                        weight[0] = 0
+                    elif shown_card in WEAPONS:
+                        weight[1] = 0
+                    else:
+                        weight[2] = 0
 
                     # left 카드 중 suggestion_cards 에 가중치: weight(45 line)
 
-                    # for card in suggestion_cards:
-                    #     weights[card] = weight
-                    # hello = [weight for s in suspects_left if s in suggestion_cards]
+                    # Normalize 진행
+                    suspects_remain = [s for s in SUSPECTS if not game.knowledge[s]['owner']
+                                       and s not in suggestion_cards_s]
 
-                    # print(hello)
-                    # print(weights)
+                    weapons_remain = [w for w in WEAPONS if not game.knowledge[w]['owner']
+                                      and w not in suggestion_cards_s]
+
+                    rooms_remain = [r for r in ROOMS if not game.knowledge[r]['owner']
+                                    and r not in suggestion_cards_s]
 
                     # left 카드 중 suggestion_cards 아닌 카드에 가중치 1
-                    hello = [1 for s in suspects_left if s not in suggestion_cards]
+                    weights_suspects_remain = {card: 1.0 for card in suspects_remain}
+                    weights_weapons_remain = {card: 1.0 for card in weapons_remain}
+                    weights_rooms_remain = {card: 1.0 for card in rooms_remain}
 
-                    # Suggestion 중 shown 카드는 제외
+                    weights_suspects_remain[suggestion_cards_s[0]] = weight[0]
+                    weights_weapons_remain[suggestion_cards_s[1]] = weight[1]
+                    weights_rooms_remain[suggestion_cards_s[2]] = weight[2]
+
+                    print(weights_suspects_remain)
+                    print(weights_weapons_remain)
+                    print(weights_rooms_remain)
+
                     # 각 카드의 가중치 / 각 카드 가중치의 합 => updated probability
+
+                    suspect_weight_sum = sum(weights_suspects_remain.values())
+                    for card in weights_suspects_remain:
+                        game.card_probs[card] = weights_suspects_remain[card] / suspect_weight_sum
+
+                    weapon_weight_sum = sum(weights_weapons_remain.values())
+                    for card in weights_weapons_remain:
+                        game.card_probs[card] = weights_weapons_remain[card] / weapon_weight_sum
+
+                    rooms_weight_sum = sum(weights_rooms_remain.values())
+                    for card in weights_rooms_remain:
+                        game.card_probs[card] = weights_rooms_remain[card] / rooms_weight_sum
 
                     # 제외할 플레이어들: 해당 카드
 
