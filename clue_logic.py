@@ -119,6 +119,12 @@ class ClueHelper:
     def update_probabilities(self, shown_card):
         pass
 
+    def divide_element(self, arr1, arr2):
+        result = []
+        for i in range(len(arr1)):
+            result.append(arr1[i] / arr2[i])
+        return result
+
     # # ===============================
     # # 📘 추리 기록
     # # ===============================

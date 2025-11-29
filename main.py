@@ -54,7 +54,7 @@ def main():
                     # 확률 정규화 로직1 => 추리한 카드 3장에 대해 각각 (knowledge 기반)
                     # 전체 후보리스트: players + envelope
                     next_cases = game.calculate_cases(suggestion_cards_s)
-                    weight = list(np.array(previous_cases) / np.array(next_cases))  # [3, 5, 9] [1.5 1.5 1.5]
+                    weight = game.divide_element(previous_cases, next_cases)  # [3, 5, 9] [1.5 1.5 1.5]
 
                     if shown_card in SUSPECTS:
                         weight[0] = 0
@@ -84,23 +84,32 @@ def main():
                     weights_weapons_remain[suggestion_cards_s[1]] = weight[1]
                     weights_rooms_remain[suggestion_cards_s[2]] = weight[2]
 
+                    print(suspects_remain)
                     print(weights_suspects_remain)
-                    print(weights_weapons_remain)
-                    print(weights_rooms_remain)
+                    print(game.card_probs)
 
-                    # 각 카드의 가중치 / 각 카드 가중치의 합 => updated probability
+                    # updated probability = 사전확률(card_probs) * 가중치(weights_**_remain) / 총합(사전확률(card_probs) * 가중치(weights_**_remain))
 
-                    suspect_weight_sum = sum(weights_suspects_remain.values())
+                    suspect_probs_sum = 0
                     for card in weights_suspects_remain:
-                        game.card_probs[card] = weights_suspects_remain[card] / suspect_weight_sum
+                        suspect_probs_sum += game.card_probs[card] * weights_suspects_remain[card]
 
-                    weapon_weight_sum = sum(weights_weapons_remain.values())
+                    for card in weights_suspects_remain:
+                        game.card_probs[card] = game.card_probs[card] * weights_suspects_remain[card] / suspect_probs_sum
+
+                    weapon_probs_sum = 0
                     for card in weights_weapons_remain:
-                        game.card_probs[card] = weights_weapons_remain[card] / weapon_weight_sum
+                        weapon_probs_sum += game.card_probs[card] * weights_weapons_remain[card]
 
-                    rooms_weight_sum = sum(weights_rooms_remain.values())
+                    for card in weights_weapons_remain:
+                        game.card_probs[card] = game.card_probs[card] * weights_weapons_remain[card] / weapon_probs_sum
+
+                    room_probs_sum = 0
                     for card in weights_rooms_remain:
-                        game.card_probs[card] = weights_rooms_remain[card] / rooms_weight_sum
+                        room_probs_sum += game.card_probs[card] * weights_rooms_remain[card]
+
+                    for card in weights_rooms_remain:
+                        game.card_probs[card] = game.card_probs[card] * weights_rooms_remain[card] / room_probs_sum
 
                     # 제외할 플레이어들: 해당 카드
 
