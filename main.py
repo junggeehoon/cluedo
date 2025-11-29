@@ -57,6 +57,7 @@ def main():
 
                     weights = {card: 1.0 for card in suggestion_cards_s}
 
+
                     weights[shown_card] = 0
 
                     # Normalize 진행
@@ -66,6 +67,7 @@ def main():
 
                     # print(suspects_left)
                     print(weight)
+                    print(weights)
 
                     # left 카드 중 suggestion_cards 에 가중치: weight(45 line)
 
